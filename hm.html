@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive HTML Tag Guide</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Chosen Palette: Warm Neutrals -->
+    <!-- Application Structure Plan: The application uses a two-column layout for optimal user experience on desktops. A sticky sidebar on the left provides category-based navigation, allowing users to quickly jump to relevant sections. The main content area on the right displays HTML tags in individual "cards," organized by these categories. A search bar provides real-time filtering. This structure was chosen because it's a standard and highly effective pattern for documentation and reference sites, enabling users to either browse systematically or find specific information quickly without leaving the page. -->
+    <!-- Visualization & Content Choices: The core "report" is a list of HTML tags and their attributes. Goal: Inform & Organize. Presentation Method: The data is presented in structured "cards" instead of a simple list or table. This visually separates each tag's information (definition, syntax, example) for better readability. Interaction: Users can filter all cards via a search input, navigate via sidebar links, and copy code snippets with a click. Justification: This interactive card-based system is more engaging and less overwhelming than a static document. The side-by-side view of code and its rendered output is a direct and effective teaching method. No complex charts or graphs are needed. -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+        .code-block {
+            background-color: #2d3748;
+            color: #e2e8f0;
+            border-radius: 0.5rem;
+            padding: 1rem;
+            position: relative;
+        }
+        .copy-btn {
+            position: absolute;
+            top: 0.5rem;
+            right: 0.5rem;
+            background-color: #4a5568;
+            color: #e2e8f0;
+            border: none;
+            border-radius: 0.25rem;
+            padding: 0.25rem 0.5rem;
+            font-size: 0.75rem;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        .copy-btn:hover {
+            background-color: #2d3748;
+        }
+        .active-nav {
+            background-color: #e5e7eb;
+            color: #111827;
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800">
+
+    <div class="flex flex-col md:flex-row">
+        
+        <aside id="sidebar" class="w-full md:w-64 bg-white/80 backdrop-blur-sm md:h-screen md:sticky top-0 p-4 md:p-6 border-r border-slate-200">
+            <h1 class="text-2xl font-bold text-slate-900 mb-6">HTML Cheatsheet</h1>
+            <div class="mb-4">
+                <input type="text" id="searchInput" placeholder="Search for a tag..." class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+            </div>
+            <nav id="nav-menu" class="space-y-2">
+            </nav>
+        </aside>
+
+        <main class="w-full p-4 md:p-8 lg:p-12">
+            <div id="tag-container" class="space-y-12">
+            </div>
+        </main>
+    </div>
+
+    <script>
+        const htmlTags = [
+            {
+                category: "Document Structure",
+                tags: [
+                    { name: "<html>", description: "The root element of an HTML page.", syntax: "<html>...</html>", example: "<html>\n  <head>...</head>\n  <body>...</body>\n</html>" },
+                    { name: "<head>", description: "Contains meta-information about the document, like title and character set.", syntax: "<head>...</head>", example: "<head>\n  <title>My Page</title>\n</head>" },
+                    { name: "<body>", description: "Contains the visible content of the HTML document.", syntax: "<body>...</body>", example: "<body>\n  <h1>Hello World!</h1>\n</body>" },
+                    { name: "<!DOCTYPE html>", description: "A declaration that defines the document to be HTML5. It must be the very first thing in your HTML document.", syntax: "<!DOCTYPE html>", example: "<!DOCTYPE html>\n<html>...</html>" },
+                ]
+            },
+            {
+                category: "Headings & Paragraphs",
+                tags: [
+                    { name: "<h1> to <h6>", description: "Define HTML headings. <h1> is the most important, <h6> is the least.", syntax: "<h1>Heading 1</h1>", example: "<h1>This is Heading 1</h1>\n<h2>This is Heading 2</h2>\n<h3>This is Heading 3</h3>" },
+                    { name: "<p>", description: "Defines a paragraph.", syntax: "<p>...</p>", example: "<p>This is a paragraph of text.</p>" },
+                    { name: "<br>", description: "Inserts a single line break.", syntax: "<br>", example: "First line.<br>Second line." },
+                    { name: "<hr>", description: "Represents a thematic break between paragraph-level elements; for example, a change of scene in a story, or a shift of topic within a section.", syntax: "<hr>", example: "<p>First topic.</p>\n<hr>\n<p>Second topic.</p>" }
+                ]
+            },
+            {
+                category: "Text Formatting",
+                tags: [
+                    { name: "<strong>", description: "Defines text with strong importance. The content is typically displayed in bold.", syntax: "<strong>...</strong>", example: "<strong>This text is important.</strong>" },
+                    { name: "<em>", description: "Defines emphasized text. The content is typically displayed in italic.", syntax: "<em>...</em>", example: "<em>This text is emphasized.</em>" },
+                    { name: "<u>", description: "Represents text that should be stylistically different from normal text, such as a misspelled word or a proper name in Chinese. Typically rendered as underlined.", syntax: "<u>...</u>", example: "This is <u>misspelled</u>." },
+                    { name: "<code>", description: "Defines a piece of computer code.", syntax: "<code>...</code>", example: "The HTML element is <code>&lt;p&gt;</code>." },
+                    { name: "<blockquote>", description: "Specifies a section that is quoted from another source.", syntax: "<blockquote>...</blockquote>", example: "<blockquote cite='http://www.worldwildlife.org/who/index.html'>\nFor 50 years, WWF has been protecting the future of nature.\n</blockquote>" }
+                ]
+            },
+            {
+                category: "Links & Images",
+                tags: [
+                    { name: "<a>", description: "Defines a hyperlink, which is used to link from one page to another.", syntax: "<a href='url'>...</a>", example: "<a href='https://www.google.com'>Visit Google</a>" },
+                    { name: "<img>", description: "Embeds an image into the document.", syntax: "<img src='url' alt='text'>", example: "<img src='https://placehold.co/150x50/e0e7ff/3730a3?text=Example' alt='Placeholder Image'>" }
+                ]
+            },
+            {
+                category: "Lists",
+                tags: [
+                    { name: "<ul>", description: "Defines an unordered (bulleted) list.", syntax: "<ul><li>...</li></ul>", example: "<ul>\n  <li>Coffee</li>\n  <li>Tea</li>\n</ul>" },
+                    { name: "<ol>", description: "Defines an ordered (numbered) list.", syntax: "<ol><li>...</li></ol>", example: "<ol>\n  <li>First item</li>\n  <li>Second item</li>\n</ol>" },
+                    { name: "<li>", description: "Defines a list item inside an ordered or unordered list.", syntax: "<li>...</li>", example: "<li>An item in a list</li>" },
+                    { name: "<dl>", description: "Defines a description list.", syntax: "<dl>...</dl>", example: "<dl>\n <dt>HTML</dt>\n <dd>- Hyper Text Markup Language</dd>\n</dl>"},
+                    { name: "<dt>", description: "Defines a term/name in a description list.", syntax: "<dt>...</dt>", example: "<dt>Coffee</dt>"},
+                    { name: "<dd>", description: "Describes a term/name in a description list.", syntax: "<dd>...</dd>", example: "<dd>- black hot drink</dd>"},
+                ]
+            },
+            {
+                category: "Tables",
+                tags: [
+                    { name: "<table>", description: "Defines an HTML table.", syntax: "<table>...</table>", example: "<table class='border border-collapse'>\n  <tr>\n    <th class='border p-2'>Firstname</th>\n    <th class='border p-2'>Lastname</th>\n  </tr>\n  <tr>\n    <td class='border p-2'>Peter</td>\n    <td class='border p-2'>Griffin</td>\n  </tr>\n</table>" },
+                    { name: "<tr>", description: "Defines a row in a table.", syntax: "<tr>...</tr>", example: "<tr><td>Cell 1</td><td>Cell 2</td></tr>" },
+                    { name: "<td>", description: "Defines a standard data cell in a table.", syntax: "<td>...</td>", example: "<td>Table data</td>" },
+                    { name: "<th>", description: "Defines a header cell in a table.", syntax: "<th>...</th>", example: "<th>Table Header</th>" },
+                    { name: "<thead>", description: "Groups the header content in a table.", syntax: "<thead>...</thead>", example: "<thead><tr><th>Header</th></tr></thead>"},
+                    { name: "<tbody>", description: "Groups the body content in a table.", syntax: "<tbody>...</tbody>", example: "<tbody><tr><td>Data</td></tr></tbody>"},
+                    { name: "<tfoot>", description: "Groups the footer content in a table.", syntax: "<tfoot>...</tfoot>", example: "<tfoot><tr><td>Footer</td></tr></tfoot>"}
+                ]
+            },
+            {
+                category: "Forms",
+                tags: [
+                    { name: "<form>", description: "Used to create an HTML form for user input.", syntax: "<form>...</form>", example: "<form action='/submit'>\n  <label for='fname'>First name:</label><br>\n  <input type='text' id='fname' name='fname'>\n</form>" },
+                    { name: "<input>", description: "Specifies an input field where the user can enter data.", syntax: "<input type='text'>", example: "<label>Text Input:</label>\n<input type='text' class='border rounded px-2 py-1'>" },
+                    { name: "<textarea>", description: "Defines a multi-line text input control.", syntax: "<textarea>...</textarea>", example: "<textarea rows='2' cols='20' class='border rounded p-2'>\nSome text...\n</textarea>" },
+                    { name: "<button>", description: "Defines a clickable button.", syntax: "<button>...</button>", example: "<button class='bg-blue-500 text-white px-4 py-2 rounded'>Click Me</button>" },
+                    { name: "<label>", description: "Defines a label for several form elements.", syntax: "<label for='id'>...</label>", example: "<label for='email'>Email:</label>\n<input type='email' id='email'>" },
+                    { name: "<select>", description: "Creates a drop-down list.", syntax: "<select>...</select>", example: "<select class='border rounded px-2 py-1'>\n <option value='volvo'>Volvo</option>\n <option value='saab'>Saab</option>\n</select>"},
+                    { name: "<option>", description: "Defines an option in a drop-down list.", syntax: "<option>...</option>", example: "<option value='mercedes'>Mercedes</option>"}
+                ]
+            },
+            {
+                category: "Semantic & Sectioning",
+                tags: [
+                    { name: "<header>", description: "Represents a container for introductory content or a set of navigational links.", syntax: "<header>...</header>", example: "<header class='p-2 bg-slate-200 rounded'><h1>Main Page Title</h1></header>" },
+                    { name: "<footer>", description: "Defines a footer for a document or section.", syntax: "<footer>...</footer>", example: "<footer class='p-2 bg-slate-200 rounded'><p>Posted by: Hege</p></footer>" },
+                    { name: "<nav>", description: "Defines a set of navigation links.", syntax: "<nav>...</nav>", example: "<nav>\n  <a href='#'>Home</a> | \n  <a href='#'>About</a>\n</nav>" },
+                    { name: "<section>", description: "Defines a section in a document.", syntax: "<section>...</section>", example: "<section>\n  <h2>Section Title</h2>\n  <p>Section content...</p>\n</section>" },
+                    { name: "<article>", description: "Specifies independent, self-contained content.", syntax: "<article>...</article>", example: "<article>\n  <h2>Article Title</h2>\n  <p>Article content...</p>\n</article>" },
+                    { name: "<aside>", description: "Defines some content aside from the content it is placed in (like a sidebar).", syntax: "<aside>...</aside>", example: "<aside class='p-2 bg-yellow-100 rounded'><h4>About</h4><p>Some info...</p></aside>" },
+                    { name: "<main>", description: "Specifies the main content of a document.", syntax: "<main>...</main>", example: "<main><h1>Main Content</h1><p>The primary content of the page.</p></main>"}
+                ]
+            }
+        ];
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const tagContainer = document.getElementById('tag-container');
+            const navMenu = document.getElementById('nav-menu');
+            const searchInput = document.getElementById('searchInput');
+
+            function generateContent() {
+                let contentHTML = '';
+                let navHTML = '';
+
+                htmlTags.forEach(category => {
+                    const categoryId = category.category.replace(/\s+/g, '-').toLowerCase();
+                    navHTML += `<a href="#${categoryId}" class="nav-link block px-4 py-2 text-slate-600 hover:bg-slate-100 rounded-lg transition-colors">${category.category}</a>`;
+
+                    contentHTML += `<section id="${categoryId}" class="scroll-mt-20">
+                        <h2 class="text-3xl font-bold text-slate-900 mb-6 pb-2 border-b border-slate-300">${category.category}</h2>
+                        <div class="grid grid-cols-1 gap-8">`;
+
+                    category.tags.forEach(tag => {
+                        const sanitizedName = tag.name.replace(/<|>/g, '');
+                        contentHTML += `
+                            <div class="tag-card bg-white p-6 rounded-xl shadow-md border border-slate-200/50" data-tag-name="${tag.name.toLowerCase()}">
+                                <h3 class="text-2xl font-semibold text-slate-800 mb-2 font-mono">${tag.name}</h3>
+                                <p class="text-slate-600 mb-4">${tag.description}</p>
+                                <div class="mb-4">
+                                    <h4 class="font-semibold text-slate-700 mb-2">Syntax</h4>
+                                    <div class="code-block">
+                                        <pre><code>${escapeHtml(tag.syntax)}</code></pre>
+                                        <button class="copy-btn" onclick="copyToClipboard(this)">Copy</button>
+                                    </div>
+                                </div>
+                                <div>
+                                    <h4 class="font-semibold text-slate-700 mb-2">Example</h4>
+                                    <div class="grid md:grid-cols-2 gap-4">
+                                        <div class="code-block">
+                                            <pre><code>${escapeHtml(tag.example)}</code></pre>
+                                            <button class="copy-btn" onclick="copyToClipboard(this)">Copy</button>
+                                        </div>
+                                        <div class="p-4 border border-slate-200 rounded-lg bg-slate-50 min-h-[50px]">
+                                            ${tag.example}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                    });
+
+                    contentHTML += `</div></section>`;
+                });
+
+                tagContainer.innerHTML = contentHTML;
+                navMenu.innerHTML = navHTML;
+            }
+            
+            function escapeHtml(unsafe) {
+                return unsafe
+                    .replace(/&/g, "&amp;")
+                    .replace(/</g, "&lt;")
+                    .replace(/>/g, "&gt;")
+                    .replace(/"/g, "&quot;")
+                    .replace(/'/g, "&#039;");
+            }
+            
+            function filterTags() {
+                const query = searchInput.value.toLowerCase();
+                const cards = document.querySelectorAll('.tag-card');
+                const sections = document.querySelectorAll('main section');
+                
+                cards.forEach(card => {
+                    const tagName = card.dataset.tagName;
+                    if (tagName.includes(query)) {
+                        card.style.display = 'block';
+                    } else {
+                        card.style.display = 'none';
+                    }
+                });
+
+                sections.forEach(section => {
+                    const visibleCards = section.querySelectorAll('.tag-card[style*="display: block"]');
+                    if (visibleCards.length > 0) {
+                        section.style.display = 'block';
+                    } else {
+                        section.style.display = 'none';
+                    }
+                });
+            }
+
+            function setupIntersectionObserver() {
+                const sections = document.querySelectorAll('main section');
+                const navLinks = document.querySelectorAll('.nav-link');
+                
+                const observer = new IntersectionObserver((entries) => {
+                    entries.forEach(entry => {
+                        if (entry.isIntersecting) {
+                            navLinks.forEach(link => {
+                                link.classList.remove('active-nav');
+                                if (link.getAttribute('href').substring(1) === entry.target.id) {
+                                    link.classList.add('active-nav');
+                                }
+                            });
+                        }
+                    });
+                }, { rootMargin: "-50% 0px -50% 0px" });
+
+                sections.forEach(section => {
+                    observer.observe(section);
+                });
+            }
+
+            generateContent();
+            searchInput.addEventListener('keyup', filterTags);
+            setupIntersectionObserver();
+        });
+
+        function copyToClipboard(button) {
+            const code = button.previousElementSibling.querySelector('code').innerText;
+            const textarea = document.createElement('textarea');
+            textarea.value = code;
+            document.body.appendChild(textarea);
+            textarea.select();
+            document.execCommand('copy');
+            document.body.removeChild(textarea);
+            
+            button.innerText = 'Copied!';
+            setTimeout(() => {
+                button.innerText = 'Copy';
+            }, 2000);
+        }
+    </script>
+</body>
+</html>
